@@ -1,77 +1,44 @@
 <template>
-  <div class="container">
-    <div>
-      <logo />
-      <h1 class="title">
-        Nuxt-Tailwind-Wordpress
-      </h1>
-      <h2 class="subtitle">
-        My exquisite Nuxt.js project
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
-    </div>
+  <div class="flex-row">
+    <home-button></home-button>
+    <search-bar></search-bar>
+    <poke-list
+      :poke-id="pokeID"
+      :pokemons="pokemons"
+      :img-url="imgUrl"
+      :is-fetch-complete="isFetchComplete"></poke-list>
   </div>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-
+import axios from 'axios'
+import HomeButton from '~/components/HomeButton.vue'
+import PokeList from '~/components/PokeList.vue'
 export default {
   components: {
-    Logo
+    HomeButton,
+    PokeList
+  },
+  async fetch() {
+    const { data } = await axios.get(this.apiUrl)
+    data.results.forEach((pokemon) => {
+      this.pokeID.push(pokemon.url.split('/').filter(function(part) { return !!part }).pop())
+      this.pokemons.push(pokemon)
+    })
+    this.isFetchComplete = true
+  },
+  data: () => {
+    return {
+      apiUrl: 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20',
+      imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/',
+      isFetchComplete: false,
+      pokeID: [],
+      pokemons: []
+    }
   }
 }
 </script>
 
 <style>
-/* Sample `apply` at-rules with Tailwind CSS
-.container {
-  @apply min-h-screen flex justify-center items-center text-center mx-auto;
-}
-*/
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
 
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
 </style>
