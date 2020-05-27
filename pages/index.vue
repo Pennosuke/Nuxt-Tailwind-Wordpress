@@ -1,44 +1,41 @@
 <template>
-  <div class="flex-row">
-    <home-button></home-button>
-    <search-bar></search-bar>
-    <poke-list
-      :poke-id="pokeID"
-      :pokemons="pokemons"
-      :img-url="imgUrl"
-      :is-fetch-complete="isFetchComplete"></poke-list>
+  <div class="flex my-10">
+    <main class="flex flex-col mx-auto">
+      <div class="mx-auto w-48 bg-red-500 text-white font-bold py-2 px-4 rounded-full">
+        <h1 class="text-center text-5xl">
+          Posts
+        </h1>
+      </div>
+      <div class="container mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          <div v-for="post in posts" :key="post.id" class="post">
+            <h3>
+              <a :href="`blog/${post.slug}`">{{ post.title.rendered }}</a>
+            </h3>
+            <div v-html="post.excerpt.rendered"></div>
+            <a :href="`blog/${post.slug}`" class="readmore">Read more ⟶</a>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-import HomeButton from '~/components/HomeButton.vue'
-import PokeList from '~/components/PokeList.vue'
 export default {
-  components: {
-    HomeButton,
-    PokeList
-  },
-  async fetch() {
-    const { data } = await axios.get(this.apiUrl)
-    data.results.forEach((pokemon) => {
-      this.pokeID.push(pokemon.url.split('/').filter(function(part) { return !!part }).pop())
-      this.pokemons.push(pokemon)
-    })
-    this.isFetchComplete = true
-  },
-  data: () => {
-    return {
-      apiUrl: 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20',
-      imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/',
-      isFetchComplete: false,
-      pokeID: [],
-      pokemons: []
+  computed: {
+    posts() {
+      return this.$store.state.posts
     }
+  },
+  created() {
+    this.$store.dispatch('getPosts')
   }
 }
 </script>
 
 <style>
-
+.post {
+  @apply m-5 max-w-sm rounded overflow-hidden shadow-lg;
+}
 </style>
